@@ -1,0 +1,353 @@
+generator client {
+  provider = "prisma-client-js"
+  //output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  schemas  = ["asa"]
+}
+
+model asa_application_contacts {
+  application_contact_id Int                   @id @default(autoincrement())
+  application_id         Int
+  contact_type_id        Int
+  contact_name           String?               @db.VarChar(200)
+  designation            String?               @db.VarChar(100)
+  email_id               String                @db.VarChar(255)
+  mobile_no              Decimal?              @db.Decimal(10, 0)
+  alt_telephone_no       Decimal?              @db.Decimal(10, 0)
+  website_url            String?               @db.VarChar(255)
+  helpdesk_no            Decimal?              @db.Decimal(10, 0)
+  asa_application_mst    asa_application_mst   @relation(fields: [application_id], references: [application_id], onUpdate: Restrict, map: "fk_ct_app")
+  asa_general_value_mst  asa_general_value_mst @relation(fields: [contact_type_id], references: [type_id], onUpdate: Restrict, map: "fk_ct_type")
+
+  @@schema("asa")
+}
+
+model asa_application_mst {
+  application_id                                                                Int                            @id @default(autoincrement())
+  application_no                                                                String?                        @unique @db.VarChar(12)
+  applicant_name                                                                String?                        @db.VarChar(200)
+  license_no                                                                    String?                        @db.VarChar(50)
+  registered_office_address                                                     String?
+  state_id                                                                      Int?
+  dist_id                                                                       Int?
+  pincode                                                                       Int?
+  gst_registration_no                                                           String?                        @db.VarChar(15)
+  correspondence_address                                                        String?
+  correspondence_state_id                                                       Int?
+  correspondence_dist_id                                                        Int?
+  correspondence_pincode                                                        Int?
+  tan_account_number                                                            String?                        @db.VarChar(10)
+  category_id                                                                   Int?
+  is_tech_requirement                                                           Boolean?
+  status_id                                                                     Int?
+  crt_by                                                                        Int?
+  crt_on                                                                        DateTime?                      @db.Timestamp(6)
+  upd_by                                                                        Int?
+  upd_on                                                                        DateTime?                      @db.Timestamp(6)
+  asa_application_contacts                                                      asa_application_contacts[]
+  asa_general_value_mst_asa_application_mst_category_idToasa_general_value_mst  asa_general_value_mst?         @relation("asa_application_mst_category_idToasa_general_value_mst", fields: [category_id], references: [type_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_app_category")
+  asa_district_mst_asa_application_mst_correspondence_dist_idToasa_district_mst asa_district_mst?              @relation("asa_application_mst_correspondence_dist_idToasa_district_mst", fields: [correspondence_dist_id], references: [district_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_app_corr_district")
+  asa_state_mst_asa_application_mst_correspondence_state_idToasa_state_mst      asa_state_mst?                 @relation("asa_application_mst_correspondence_state_idToasa_state_mst", fields: [correspondence_state_id], references: [state_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_app_corr_state")
+  asa_user_mst_asa_application_mst_crt_byToasa_user_mst                         asa_user_mst?                  @relation("asa_application_mst_crt_byToasa_user_mst", fields: [crt_by], references: [user_id], onUpdate: Restrict, map: "fk_app_crt_by")
+  asa_district_mst_asa_application_mst_dist_idToasa_district_mst                asa_district_mst?              @relation("asa_application_mst_dist_idToasa_district_mst", fields: [dist_id], references: [district_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_app_district")
+  asa_state_mst_asa_application_mst_state_idToasa_state_mst                     asa_state_mst?                 @relation("asa_application_mst_state_idToasa_state_mst", fields: [state_id], references: [state_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_app_state")
+  asa_general_value_mst_asa_application_mst_status_idToasa_general_value_mst    asa_general_value_mst?         @relation("asa_application_mst_status_idToasa_general_value_mst", fields: [status_id], references: [type_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_app_status")
+  asa_user_mst_asa_application_mst_upd_byToasa_user_mst                         asa_user_mst?                  @relation("asa_application_mst_upd_byToasa_user_mst", fields: [upd_by], references: [user_id], onUpdate: Restrict, map: "fk_app_upd_by")
+  asa_attachments                                                               asa_attachments[]
+  asa_infra_details                                                             asa_infra_details[]
+  asa_question_control_mapping                                                  asa_question_control_mapping[]
+
+  @@schema("asa")
+}
+
+model asa_attachments {
+  attachment_id       Int                  @id @default(autoincrement())
+  application_id      Int?
+  path                String?
+  q_id                Int?
+  asa_application_mst asa_application_mst? @relation(fields: [application_id], references: [application_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_att_app")
+  asa_question_mst    asa_question_mst?    @relation(fields: [q_id], references: [q_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_att_q")
+
+  @@schema("asa")
+}
+
+model asa_control_mst {
+  control_id                   Int                            @id @default(autoincrement())
+  q_id                         Int?
+  control_type_id              Int?
+  control_description          String?
+  asa_question_mst             asa_question_mst?              @relation(fields: [q_id], references: [q_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_ctrl_q")
+  asa_general_value_mst        asa_general_value_mst?         @relation(fields: [control_type_id], references: [type_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_ctrl_type")
+  asa_question_control_mapping asa_question_control_mapping[]
+
+  @@schema("asa")
+}
+
+model asa_designation_mst {
+  dsgn_id                   Int                         @id @default(autoincrement())
+  dsgn_name                 String                      @db.VarChar(200)
+  dsgn_code                 String?                     @db.VarChar(10)
+  parent_dsgn_id            Int?
+  is_active                 Boolean                     @default(true)
+  asa_designation_mst       asa_designation_mst?        @relation("asa_designation_mstToasa_designation_mst", fields: [parent_dsgn_id], references: [dsgn_id], onUpdate: Restrict, map: "fk_asa_dsgn_parent")
+  other_asa_designation_mst asa_designation_mst[]       @relation("asa_designation_mstToasa_designation_mst")
+  asa_dsgn_role_mapping_mst asa_dsgn_role_mapping_mst[]
+
+  @@schema("asa")
+}
+
+model asa_district_mst {
+  district_id                                                                      Int                   @id @default(autoincrement())
+  dist_name                                                                        String                @db.VarChar(100)
+  dist_code                                                                        String?               @db.VarChar(10)
+  state_id                                                                         Int
+  is_active                                                                        Boolean
+  asa_application_mst_asa_application_mst_correspondence_dist_idToasa_district_mst asa_application_mst[] @relation("asa_application_mst_correspondence_dist_idToasa_district_mst")
+  asa_application_mst_asa_application_mst_dist_idToasa_district_mst                asa_application_mst[] @relation("asa_application_mst_dist_idToasa_district_mst")
+  asa_state_mst                                                                    asa_state_mst         @relation(fields: [state_id], references: [state_id], onDelete: NoAction, onUpdate: NoAction)
+  asa_infra_details_asa_infra_details_dc_district_idToasa_district_mst             asa_infra_details[]   @relation("asa_infra_details_dc_district_idToasa_district_mst")
+  asa_infra_details_asa_infra_details_drc_district_idToasa_district_mst            asa_infra_details[]   @relation("asa_infra_details_drc_district_idToasa_district_mst")
+  asa_infra_details_asa_infra_details_district_idToasa_district_mst                asa_infra_details[]   @relation("asa_infra_details_district_idToasa_district_mst")
+
+  @@schema("asa")
+}
+
+model asa_dsgn_role_mapping_mst {
+  seq_id              Int                 @id @default(autoincrement())
+  designation_id      Int
+  role_id             Int
+  is_active           Boolean
+  asa_designation_mst asa_designation_mst @relation(fields: [designation_id], references: [dsgn_id], onUpdate: Restrict, map: "fk_drm_dsgn")
+  asa_role_mst        asa_role_mst        @relation(fields: [role_id], references: [role_id], onUpdate: Restrict, map: "fk_drm_role")
+
+  @@schema("asa")
+}
+
+model asa_general_type_mst {
+  g_type_id             Int                     @id @default(autoincrement())
+  g_type_name           String                  @db.VarChar(100)
+  is_active             Boolean
+  asa_general_value_mst asa_general_value_mst[]
+
+  @@schema("asa")
+}
+
+model asa_general_value_mst {
+  type_id                                                                    Int                        @id @default(autoincrement())
+  type_value                                                                 String                     @db.VarChar(200)
+  type_code                                                                  String?                    @db.VarChar(10)
+  g_type_id                                                                  Int
+  is_active                                                                  Boolean
+  asa_application_contacts                                                   asa_application_contacts[]
+  asa_application_mst_asa_application_mst_category_idToasa_general_value_mst asa_application_mst[]      @relation("asa_application_mst_category_idToasa_general_value_mst")
+  asa_application_mst_asa_application_mst_status_idToasa_general_value_mst   asa_application_mst[]      @relation("asa_application_mst_status_idToasa_general_value_mst")
+  asa_control_mst                                                            asa_control_mst[]
+  asa_general_type_mst                                                       asa_general_type_mst       @relation(fields: [g_type_id], references: [g_type_id], onUpdate: Restrict, map: "fk_gvm_type")
+  asa_hardware_details                                                       asa_hardware_details[]
+  asa_infra_details_asa_infra_details_dc_country_idToasa_general_value_mst   asa_infra_details[]        @relation("asa_infra_details_dc_country_idToasa_general_value_mst")
+  asa_infra_details_asa_infra_details_drc_country_idToasa_general_value_mst  asa_infra_details[]        @relation("asa_infra_details_drc_country_idToasa_general_value_mst")
+
+  @@schema("asa")
+}
+
+model asa_hardware_details {
+  details_id            Int                    @id @default(autoincrement())
+  router_make           String?                @db.VarChar(100)
+  router_model          String?                @db.VarChar(100)
+  deployed_at_id        Int?
+  asa_general_value_mst asa_general_value_mst? @relation(fields: [deployed_at_id], references: [type_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_hw_deployed_at")
+
+  @@schema("asa")
+}
+
+model asa_infra_details {
+  application_infra_id                                                          Int                    @id @default(autoincrement())
+  application_id                                                                Int?
+  site_address                                                                  String?
+  state_id                                                                      Int?
+  district_id                                                                   Int?
+  dc_poc_name                                                                   String?                @db.VarChar(200)
+  dc_email_id                                                                   String?                @db.VarChar(255)
+  dc_mobile_no                                                                  Decimal?               @db.Decimal(10, 0)
+  dc_address                                                                    String?
+  dc_district_id                                                                Int?
+  dc_state_id                                                                   Int?
+  dc_country_id                                                                 Int?
+  drc_poc_name                                                                  String?                @db.VarChar(200)
+  drc_email_id                                                                  String?                @db.VarChar(255)
+  drc_mobile_no                                                                 Decimal?               @db.Decimal(10, 0)
+  drc_address                                                                   String?
+  drc_district_id                                                               Int?
+  drc_state_id                                                                  Int?
+  drc_country_id                                                                Int?
+  asa_general_value_mst_asa_infra_details_dc_country_idToasa_general_value_mst  asa_general_value_mst? @relation("asa_infra_details_dc_country_idToasa_general_value_mst", fields: [dc_country_id], references: [type_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_dc_country")
+  asa_district_mst_asa_infra_details_dc_district_idToasa_district_mst           asa_district_mst?      @relation("asa_infra_details_dc_district_idToasa_district_mst", fields: [dc_district_id], references: [district_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_dc_district")
+  asa_state_mst_asa_infra_details_dc_state_idToasa_state_mst                    asa_state_mst?         @relation("asa_infra_details_dc_state_idToasa_state_mst", fields: [dc_state_id], references: [state_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_dc_state")
+  asa_general_value_mst_asa_infra_details_drc_country_idToasa_general_value_mst asa_general_value_mst? @relation("asa_infra_details_drc_country_idToasa_general_value_mst", fields: [drc_country_id], references: [type_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_drc_country")
+  asa_district_mst_asa_infra_details_drc_district_idToasa_district_mst          asa_district_mst?      @relation("asa_infra_details_drc_district_idToasa_district_mst", fields: [drc_district_id], references: [district_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_drc_district")
+  asa_state_mst_asa_infra_details_drc_state_idToasa_state_mst                   asa_state_mst?         @relation("asa_infra_details_drc_state_idToasa_state_mst", fields: [drc_state_id], references: [state_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_drc_state")
+  asa_application_mst                                                           asa_application_mst?   @relation(fields: [application_id], references: [application_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_infra_app")
+  asa_district_mst_asa_infra_details_district_idToasa_district_mst              asa_district_mst?      @relation("asa_infra_details_district_idToasa_district_mst", fields: [district_id], references: [district_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_infra_district")
+  asa_state_mst_asa_infra_details_state_idToasa_state_mst                       asa_state_mst?         @relation("asa_infra_details_state_idToasa_state_mst", fields: [state_id], references: [state_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_infra_state")
+
+  @@schema("asa")
+}
+
+model asa_menu_mst {
+  menu_id                                        Int                     @id @default(autoincrement())
+  menu_name                                      String?                 @db.VarChar(100)
+  parent_menu_id                                 Int?
+  is_default                                     Boolean?
+  is_active                                      Boolean                 @default(true)
+  crt_by                                         Int?
+  crt_on                                         DateTime?               @db.Timestamp(6)
+  upd_by                                         Int?
+  upd_on                                         DateTime?               @db.Timestamp(6)
+  asa_user_mst_asa_menu_mst_crt_byToasa_user_mst asa_user_mst?           @relation("asa_menu_mst_crt_byToasa_user_mst", fields: [crt_by], references: [user_id], onUpdate: Restrict, map: "fk_menu_crt_by")
+  asa_menu_mst                                   asa_menu_mst?           @relation("asa_menu_mstToasa_menu_mst", fields: [parent_menu_id], references: [menu_id], onUpdate: Restrict, map: "fk_menu_parent")
+  other_asa_menu_mst                             asa_menu_mst[]          @relation("asa_menu_mstToasa_menu_mst")
+  asa_user_mst_asa_menu_mst_upd_byToasa_user_mst asa_user_mst?           @relation("asa_menu_mst_upd_byToasa_user_mst", fields: [upd_by], references: [user_id], onUpdate: Restrict, map: "fk_menu_upd_by")
+  asa_user_menu_mapping                          asa_user_menu_mapping[]
+
+  @@schema("asa")
+}
+
+model asa_question_control_mapping {
+  id                  Int                  @id @default(autoincrement())
+  application_id      Int?
+  q_id                Int?
+  control_id          Int?
+  description         String?
+  asa_application_mst asa_application_mst? @relation(fields: [application_id], references: [application_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_qcb_app")
+  asa_control_mst     asa_control_mst?     @relation(fields: [control_id], references: [control_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_qcb_ctrl")
+  asa_question_mst    asa_question_mst?    @relation(fields: [q_id], references: [q_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_qcb_q")
+
+  @@schema("asa")
+}
+
+model asa_question_mst {
+  q_id                         Int                            @id @default(autoincrement())
+  q_desc                       String?
+  q_map                        String?
+  asa_attachments              asa_attachments[]
+  asa_control_mst              asa_control_mst[]
+  asa_question_control_mapping asa_question_control_mapping[]
+
+  @@schema("asa")
+}
+
+model asa_role_mst {
+  role_id                   Int                         @id @default(autoincrement())
+  role_name                 String                      @db.VarChar(200)
+  role_code                 String?                     @db.VarChar(10)
+  is_active                 Boolean                     @default(true)
+  asa_dsgn_role_mapping_mst asa_dsgn_role_mapping_mst[]
+  asa_user_role_mapping     asa_user_role_mapping[]
+
+  @@schema("asa")
+}
+
+model asa_state_mst {
+  state_id                                                                       Int                   @id @default(autoincrement())
+  state_name                                                                     String                @db.VarChar(100)
+  state_code                                                                     String?               @db.VarChar(10)
+  is_active                                                                      Boolean
+  asa_application_mst_asa_application_mst_correspondence_state_idToasa_state_mst asa_application_mst[] @relation("asa_application_mst_correspondence_state_idToasa_state_mst")
+  asa_application_mst_asa_application_mst_state_idToasa_state_mst                asa_application_mst[] @relation("asa_application_mst_state_idToasa_state_mst")
+  asa_district_mst                                                               asa_district_mst[]
+  asa_infra_details_asa_infra_details_dc_state_idToasa_state_mst                 asa_infra_details[]   @relation("asa_infra_details_dc_state_idToasa_state_mst")
+  asa_infra_details_asa_infra_details_drc_state_idToasa_state_mst                asa_infra_details[]   @relation("asa_infra_details_drc_state_idToasa_state_mst")
+  asa_infra_details_asa_infra_details_state_idToasa_state_mst                    asa_infra_details[]   @relation("asa_infra_details_state_idToasa_state_mst")
+
+  @@schema("asa")
+}
+
+model asa_user_dsgn_mapping {
+  seq_id                                                   Int           @id @default(autoincrement())
+  user_id                                                  Int
+  is_active                                                Boolean
+  crt_by                                                   Int?
+  crt_on                                                   DateTime?     @db.Timestamp(6)
+  upd_by                                                   Int?
+  upd_on                                                   DateTime?     @db.Timestamp(6)
+  is_primary_dsgn                                          Boolean       @default(false)
+  asa_user_mst_asa_user_dsgn_mapping_crt_byToasa_user_mst  asa_user_mst? @relation("asa_user_dsgn_mapping_crt_byToasa_user_mst", fields: [crt_by], references: [user_id], onUpdate: Restrict, map: "fk_udm_crt_by")
+  asa_user_mst_asa_user_dsgn_mapping_upd_byToasa_user_mst  asa_user_mst? @relation("asa_user_dsgn_mapping_upd_byToasa_user_mst", fields: [upd_by], references: [user_id], onUpdate: Restrict, map: "fk_udm_upd_by")
+  asa_user_mst_asa_user_dsgn_mapping_user_idToasa_user_mst asa_user_mst  @relation("asa_user_dsgn_mapping_user_idToasa_user_mst", fields: [user_id], references: [user_id], onUpdate: Restrict, map: "fk_udm_user")
+
+  @@schema("asa")
+}
+
+model asa_user_menu_mapping {
+  mapping_id                                               Int           @id @default(autoincrement())
+  user_id                                                  Int?
+  menu_id                                                  Int?
+  can_view                                                 Boolean?      @default(true)
+  can_edit                                                 Boolean?      @default(true)
+  can_create                                               Boolean?      @default(true)
+  can_delete                                               Boolean?      @default(true)
+  is_active                                                Boolean       @default(true)
+  crt_by                                                   Int?
+  crt_on                                                   DateTime?     @db.Timestamp(6)
+  upd_by                                                   Int?
+  upd_on                                                   DateTime?     @db.Timestamp(6)
+  asa_user_mst_asa_user_menu_mapping_crt_byToasa_user_mst  asa_user_mst? @relation("asa_user_menu_mapping_crt_byToasa_user_mst", fields: [crt_by], references: [user_id], onUpdate: Restrict, map: "fk_um_crt_by")
+  asa_menu_mst                                             asa_menu_mst? @relation(fields: [menu_id], references: [menu_id], onDelete: Cascade, onUpdate: Restrict, map: "fk_um_menu")
+  asa_user_mst_asa_user_menu_mapping_upd_byToasa_user_mst  asa_user_mst? @relation("asa_user_menu_mapping_upd_byToasa_user_mst", fields: [upd_by], references: [user_id], onUpdate: Restrict, map: "fk_um_upd_by")
+  asa_user_mst_asa_user_menu_mapping_user_idToasa_user_mst asa_user_mst? @relation("asa_user_menu_mapping_user_idToasa_user_mst", fields: [user_id], references: [user_id], onUpdate: Restrict, map: "fk_um_user")
+
+  @@schema("asa")
+}
+
+model asa_user_mst {
+  user_id                                                           Int                     @id @default(autoincrement())
+  full_name                                                         String                  @db.VarChar(200)
+  mobile_no                                                         Decimal                 @db.Decimal(10, 0)
+  email_id                                                          String                  @db.VarChar(50)
+  pswd                                                              String                  @db.VarChar(50)
+  is_active                                                         Boolean                 @default(true)
+  crt_by                                                            Int?
+  crt_on                                                            DateTime?               @db.Timestamp(6)
+  upd_by                                                            Int?
+  upd_on                                                            DateTime?               @db.Timestamp(6)
+  asa_application_mst_asa_application_mst_crt_byToasa_user_mst      asa_application_mst[]   @relation("asa_application_mst_crt_byToasa_user_mst")
+  asa_application_mst_asa_application_mst_upd_byToasa_user_mst      asa_application_mst[]   @relation("asa_application_mst_upd_byToasa_user_mst")
+  asa_menu_mst_asa_menu_mst_crt_byToasa_user_mst                    asa_menu_mst[]          @relation("asa_menu_mst_crt_byToasa_user_mst")
+  asa_menu_mst_asa_menu_mst_upd_byToasa_user_mst                    asa_menu_mst[]          @relation("asa_menu_mst_upd_byToasa_user_mst")
+  asa_user_dsgn_mapping_asa_user_dsgn_mapping_crt_byToasa_user_mst  asa_user_dsgn_mapping[] @relation("asa_user_dsgn_mapping_crt_byToasa_user_mst")
+  asa_user_dsgn_mapping_asa_user_dsgn_mapping_upd_byToasa_user_mst  asa_user_dsgn_mapping[] @relation("asa_user_dsgn_mapping_upd_byToasa_user_mst")
+  asa_user_dsgn_mapping_asa_user_dsgn_mapping_user_idToasa_user_mst asa_user_dsgn_mapping[] @relation("asa_user_dsgn_mapping_user_idToasa_user_mst")
+  asa_user_menu_mapping_asa_user_menu_mapping_crt_byToasa_user_mst  asa_user_menu_mapping[] @relation("asa_user_menu_mapping_crt_byToasa_user_mst")
+  asa_user_menu_mapping_asa_user_menu_mapping_upd_byToasa_user_mst  asa_user_menu_mapping[] @relation("asa_user_menu_mapping_upd_byToasa_user_mst")
+  asa_user_menu_mapping_asa_user_menu_mapping_user_idToasa_user_mst asa_user_menu_mapping[] @relation("asa_user_menu_mapping_user_idToasa_user_mst")
+  asa_user_mst_asa_user_mst_crt_byToasa_user_mst                    asa_user_mst?           @relation("asa_user_mst_crt_byToasa_user_mst", fields: [crt_by], references: [user_id], onUpdate: Restrict, map: "fk_user_crt_by")
+  other_asa_user_mst_asa_user_mst_crt_byToasa_user_mst              asa_user_mst[]          @relation("asa_user_mst_crt_byToasa_user_mst")
+  asa_user_mst_asa_user_mst_upd_byToasa_user_mst                    asa_user_mst?           @relation("asa_user_mst_upd_byToasa_user_mst", fields: [upd_by], references: [user_id], onUpdate: Restrict, map: "fk_user_upd_by")
+  other_asa_user_mst_asa_user_mst_upd_byToasa_user_mst              asa_user_mst[]          @relation("asa_user_mst_upd_byToasa_user_mst")
+  asa_user_role_mapping_asa_user_role_mapping_crt_byToasa_user_mst  asa_user_role_mapping[] @relation("asa_user_role_mapping_crt_byToasa_user_mst")
+  asa_user_role_mapping_asa_user_role_mapping_upd_byToasa_user_mst  asa_user_role_mapping[] @relation("asa_user_role_mapping_upd_byToasa_user_mst")
+  asa_user_role_mapping_asa_user_role_mapping_user_idToasa_user_mst asa_user_role_mapping[] @relation("asa_user_role_mapping_user_idToasa_user_mst")
+
+  @@schema("asa")
+}
+
+model asa_user_role_mapping {
+  seq_id                                                   Int           @id @default(autoincrement())
+  user_id                                                  Int
+  role_id                                                  Int
+  is_active                                                Boolean
+  crt_by                                                   Int?
+  crt_on                                                   DateTime?     @db.Timestamp(6)
+  upd_by                                                   Int?
+  upd_on                                                   DateTime?     @db.Timestamp(6)
+  is_primary_role                                          Boolean?
+  asa_user_mst_asa_user_role_mapping_crt_byToasa_user_mst  asa_user_mst? @relation("asa_user_role_mapping_crt_byToasa_user_mst", fields: [crt_by], references: [user_id], onUpdate: Restrict, map: "fk_urm_crt_by")
+  asa_role_mst                                             asa_role_mst  @relation(fields: [role_id], references: [role_id], onUpdate: Restrict, map: "fk_urm_role")
+  asa_user_mst_asa_user_role_mapping_upd_byToasa_user_mst  asa_user_mst? @relation("asa_user_role_mapping_upd_byToasa_user_mst", fields: [upd_by], references: [user_id], onUpdate: Restrict, map: "fk_urm_upd_by")
+  asa_user_mst_asa_user_role_mapping_user_idToasa_user_mst asa_user_mst  @relation("asa_user_role_mapping_user_idToasa_user_mst", fields: [user_id], references: [user_id], onUpdate: Restrict, map: "fk_urm_user")
+
+  @@schema("asa")
+}

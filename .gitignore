@@ -1,0 +1,15 @@
+# Dependencies
+node_modules
+package-lock.json
+
+# Environment variables (NEVER COMMIT THIS)
+.env
+
+# Prisma
+/prisma/migrations
+*.sqlite
+*.db
+
+# OS files
+.DS_Store
+Thumbs.db
