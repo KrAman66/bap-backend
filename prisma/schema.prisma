@@ -268,6 +268,7 @@ model asa_state_mst {
 model asa_user_dsgn_mapping {
   seq_id                                                   Int           @id @default(autoincrement())
   user_id                                                  Int
+  designation_id   Int
   is_active                                                Boolean
   crt_by                                                   Int?
   crt_on                                                   DateTime?     @db.Timestamp(6)
