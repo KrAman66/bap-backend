@@ -4,6 +4,7 @@ const questionsController = require("../controllers/controller");
 const asyncHandler = require("../middleware/asyncHandler");
 const { authorize } = require("../middleware/authorize");
 const mstController = require("../controllers/mstController");
+const mappingController = require("../controllers/mapping.controller");
 
 router.post("/users/create-user", mstController.create("asa_user_mst"));
 router.get("/users/get-all-users", mstController.getAll("asa_user_mst"));
@@ -62,7 +63,7 @@ router.post(
 
 router.get(
   "/designations/role-mapping/get-all",
-  mstController.getAll("asa_dsgn_role_mapping_mst"),
+  asyncHandler(mappingController.getDesignationRoleMappings), // <--- Use new controller
 );
 
 router.get(
@@ -91,9 +92,8 @@ router.post(
 
 router.get(
   "/users/designation-mapping/get-all",
-  mstController.getAll("asa_user_dsgn_mapping"),
+  asyncHandler(mappingController.getUserDesignationMappings), // <--- Use new controller
 );
-
 router.get(
   "/users/designation-mapping/:seq_id",
   mstController.getOne("asa_user_dsgn_mapping", "seq_id"),

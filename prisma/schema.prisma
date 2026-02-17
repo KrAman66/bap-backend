@@ -92,9 +92,11 @@ model asa_designation_mst {
   dsgn_code                 String?                     @db.VarChar(10)
   parent_dsgn_id            Int?
   is_active                 Boolean                     @default(true)
+  
   asa_designation_mst       asa_designation_mst?        @relation("asa_designation_mstToasa_designation_mst", fields: [parent_dsgn_id], references: [dsgn_id], onUpdate: Restrict, map: "fk_asa_dsgn_parent")
   other_asa_designation_mst asa_designation_mst[]       @relation("asa_designation_mstToasa_designation_mst")
   asa_dsgn_role_mapping_mst asa_dsgn_role_mapping_mst[]
+  asa_user_dsgn_mapping     asa_user_dsgn_mapping[]     
 
   @@schema("asa")
 }
@@ -268,13 +270,14 @@ model asa_state_mst {
 model asa_user_dsgn_mapping {
   seq_id                                                   Int           @id @default(autoincrement())
   user_id                                                  Int
-  designation_id   Int
+  designation_id                                           Int
   is_active                                                Boolean
   crt_by                                                   Int?
   crt_on                                                   DateTime?     @db.Timestamp(6)
   upd_by                                                   Int?
   upd_on                                                   DateTime?     @db.Timestamp(6)
   is_primary_dsgn                                          Boolean       @default(false)
+  asa_designation_mst                                      asa_designation_mst @relation(fields: [designation_id], references: [dsgn_id], onUpdate: Restrict, map: "fk_udm_dsgn")
   asa_user_mst_asa_user_dsgn_mapping_crt_byToasa_user_mst  asa_user_mst? @relation("asa_user_dsgn_mapping_crt_byToasa_user_mst", fields: [crt_by], references: [user_id], onUpdate: Restrict, map: "fk_udm_crt_by")
   asa_user_mst_asa_user_dsgn_mapping_upd_byToasa_user_mst  asa_user_mst? @relation("asa_user_dsgn_mapping_upd_byToasa_user_mst", fields: [upd_by], references: [user_id], onUpdate: Restrict, map: "fk_udm_upd_by")
   asa_user_mst_asa_user_dsgn_mapping_user_idToasa_user_mst asa_user_mst  @relation("asa_user_dsgn_mapping_user_idToasa_user_mst", fields: [user_id], references: [user_id], onUpdate: Restrict, map: "fk_udm_user")
